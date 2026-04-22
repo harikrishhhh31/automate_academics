@@ -1,0 +1,8 @@
+node_modules/
+.env
+dist/
+.DS_Store
+autolearn-frontend/node_modules/
+autolearn-frontend/dist/
+autolearn-backend/node_modules/
+autolearn-backend/.env
