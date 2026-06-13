@@ -2,6 +2,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const jitter = (base, range = 300) => base + Math.floor(Math.random() * range * 2) - range;
 
 import { answerQuestion, matchToOption } from '../llm/pipeline.js';
+import { getCached, setCache } from '../utils/answerCache.js';
 
 export const handleGforms = async (ctx, url, userInfo) => {
   const { page, send, waitForConfirm, isStop } = ctx;
@@ -87,6 +88,7 @@ export const handleGforms = async (ctx, url, userInfo) => {
     await page.waitForURL('**/docs.google.com/forms/**', { timeout: 60000 });
     await page.waitForLoadState('networkidle');
     console.log('[Login] Back on form. Login successful.');
+    userInfo.password = null;
   } catch (e) {
     console.error('[Login] Did not return to form. Current URL:', page.url());
     send({ type: 'error', message: 'Login may have failed — check for CAPTCHA or 2FA' });
@@ -111,6 +113,16 @@ export const handleGforms = async (ctx, url, userInfo) => {
   // Get all question containers
   const questions = await page.$$('div[role="listitem"]');
   send('log', `Found ${questions.length} question(s)`);
+
+  const cached = await getCached(url);
+  if (cached) {
+    console.log('[Cache] Using cached answers — skipping LLM');
+    // Apply cached answers directly
+  } else {
+    // Run LLM call here
+    // Then store result:
+    // await setCache(url, answers);
+  }
 
   let qIndex = 0;
   for (const question of questions) {

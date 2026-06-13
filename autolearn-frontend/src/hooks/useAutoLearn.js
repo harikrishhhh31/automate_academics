@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
-export const useAutoLearn = (url) => {
+export const useAutoLearn = (initialUrl) => {
+  const wsUrl = import.meta.env.VITE_WS_URL || `ws://${window.location.hostname}:3001`;
+  const [url, setUrl] = useState(initialUrl || wsUrl);
   const [status, setStatus] = useState('Disconnected');
   const [logs, setLogs] = useState([]);
   const [image, setImage] = useState(null);

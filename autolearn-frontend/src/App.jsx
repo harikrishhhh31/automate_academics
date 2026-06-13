@@ -73,7 +73,7 @@ function App() {
     status, logs, image,
     requireConfirmation,
     startAutomation, stopAutomation, confirmSubmit,
-  } = useAutoLearn('ws://localhost:3001');
+  } = useAutoLearn();
 
   const handlePlatformSelect = (p) => {
     setPlatform(p);

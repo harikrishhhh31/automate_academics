@@ -4,7 +4,7 @@ export const startStreaming = (page, ws) => {
     if (isCapturing) return;
     isCapturing = true;
     try {
-      const screenshot = await page.screenshot({ type: 'jpeg', quality: 50 });
+      const screenshot = await page.screenshot({ type: 'jpeg', quality: 40 });
       if (ws.readyState === 1) { // WebSocket.OPEN
         ws.send(JSON.stringify({
           type: 'stream',
@@ -16,5 +16,5 @@ export const startStreaming = (page, ws) => {
     } finally {
       isCapturing = false;
     }
-  }, 600);
+  }, 500);
 };

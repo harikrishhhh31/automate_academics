@@ -9,7 +9,7 @@ const Field = ({ label, type = 'text', value, onChange, placeholder }) => (
       onChange={onChange}
       placeholder={placeholder}
       className="w-full rounded-xl px-4 py-3 text-white text-sm outline-none transition-all duration-200"
-      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '16px' }}
       onFocus={e => { e.target.style.borderColor = '#4f8ef7'; e.target.style.boxShadow = '0 0 0 3px rgba(79,142,247,0.15)'; }}
       onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
     />
