@@ -68,8 +68,23 @@ wss.on('connection', (ws) => {
       stopRequested = false;
 
       try {
-        browser = await chromium.launch({ headless: false });
-        const context = await browser.newContext();
+        browser = await chromium.launch({
+          headless: false,
+          args: [
+            '--disable-blink-features=AutomationControlled',
+            '--no-sandbox',
+          ]
+        });
+
+        const context = await browser.newContext({
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        });
+
+        // Add this to mask navigator.webdriver
+        await context.addInitScript(() => {
+          Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        });
+
         const page = await context.newPage();
 
         streamInterval = startStreaming(page, ws);

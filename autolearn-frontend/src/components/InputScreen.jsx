@@ -24,7 +24,7 @@ const platformMeta = {
 
 const InputScreen = ({ platform, onStart, onBack }) => {
   const [url, setUrl] = useState('');
-  const [userInfo, setUserInfo] = useState({ name: '', email: '', roll: '' });
+  const [userInfo, setUserInfo] = useState({ name: '', email: '', roll: '', gmail: '', password: '' });
   const meta = platformMeta[platform] || {};
   const isGForms      = platform === 'gforms';
   const isSpringboard = platform === 'springboard';
@@ -60,6 +60,8 @@ const InputScreen = ({ platform, onStart, onBack }) => {
             <Field label="Full Name" value={userInfo.name} onChange={e => setUserInfo({...userInfo, name: e.target.value})} placeholder="John Doe" />
             <Field label="Email Address" type="email" value={userInfo.email} onChange={e => setUserInfo({...userInfo, email: e.target.value})} placeholder="john@example.com" />
             <Field label="Roll Number" value={userInfo.roll} onChange={e => setUserInfo({...userInfo, roll: e.target.value})} placeholder="2023CS001" />
+            <Field label="Google Account (Gmail)" type="email" value={userInfo.gmail} onChange={e => setUserInfo({...userInfo, gmail: e.target.value})} placeholder="john@gmail.com" />
+            <Field label="Google Password" type="password" value={userInfo.password} onChange={e => setUserInfo({...userInfo, password: e.target.value})} placeholder="••••••••" />
           </>
         )}
 

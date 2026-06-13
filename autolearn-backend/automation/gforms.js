@@ -13,11 +13,100 @@ export const handleGforms = async (ctx, url, userInfo) => {
   };
 
   send('status', 'Opening Google Form...');
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
-  await sleep(2000);
+  await page.goto(url);
+  
+  // Step 1: Click "Sign in" button
+  const signInButton = page.getByRole('button', { name: /sign in/i })
+    .or(page.getByRole('link', { name: /sign in/i }));
 
-  send('status', 'Scanning form fields...');
-  send('log', `Form loaded: ${await page.title()}`);
+  try {
+    await signInButton.waitFor({ state: 'visible', timeout: 5000 });
+    await signInButton.click();
+    console.log('[Login] Clicked sign-in button');
+  } catch (e) {
+    console.error('[Login] Sign-in button not found. Current URL:', page.url());
+    send({ type: 'error', message: 'Could not find Sign In button' });
+    return;
+  }
+
+  // Step 2: Wait for Google login page
+  try {
+    await page.waitForURL('**/accounts.google.com/**', { timeout: 15000 });
+    console.log('[Login] Reached Google login page');
+  } catch (e) {
+    console.error('[Login] Never reached accounts.google.com. Current URL:', page.url());
+    send({ type: 'error', message: 'Login redirect failed' });
+    return;
+  }
+
+  // Step 3: Type email — handle Google's varied input rendering
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(2000);
+
+  const emailSelector = 'input[type="email"], input[name="identifier"], input#identifierId';
+  let emailFilled = false;
+
+  try {
+    await page.waitForSelector(emailSelector, { state: 'visible', timeout: 8000 });
+    await page.type(emailSelector, userInfo.gmail, { delay: 80 });
+    emailFilled = true;
+    console.log('[Login] Typed email');
+  } catch (e) {
+    console.log('[Login] Email not in main frame, checking frames...');
+    for (const frame of page.frames()) {
+      try {
+        const input = frame.locator(emailSelector).first();
+        await input.waitFor({ state: 'visible', timeout: 3000 });
+        await input.type(userInfo.gmail, { delay: 80 });
+        emailFilled = true;
+        console.log('[Login] Typed email in frame:', frame.url());
+        break;
+      } catch (_) {}
+    }
+  }
+
+  if (!emailFilled) {
+    console.error('[Login] Email input not found. URL:', page.url());
+    send({ type: 'error', message: 'Email input not found' });
+    return;
+  }
+
+  await page.keyboard.press('Enter');
+
+  // Step 4: Type password
+  await page.waitForSelector('input[type="password"]', { 
+    state: 'visible', 
+    timeout: 10000 
+  });
+  await page.waitForTimeout(600);
+  await page.type('input[type="password"]', userInfo.password, { delay: 80 });
+  await page.keyboard.press('Enter');
+
+  // Step 5: Wait to return to form
+  try {
+    await page.waitForURL('**/docs.google.com/forms/**', { timeout: 60000 });
+    await page.waitForLoadState('networkidle');
+    console.log('[Login] Back on form. Login successful.');
+  } catch (e) {
+    console.error('[Login] Did not return to form. Current URL:', page.url());
+    send({ type: 'error', message: 'Login may have failed — check for CAPTCHA or 2FA' });
+    return;
+  }
+
+  // Step 6: Email checkbox — first checkbox on page
+  try {
+    const emailCheckbox = page.locator('input[type="checkbox"]').first();
+    await emailCheckbox.waitFor({ state: 'visible', timeout: 4000 });
+    if (!await emailCheckbox.isChecked()) {
+      await emailCheckbox.click({ force: true });
+      console.log('[Form] Checked email checkbox');
+    }
+  } catch (e) {
+    console.log('[Form] No email checkbox found, continuing');
+  }
+
+  // Small buffer before starting question extraction
+  await page.waitForTimeout(1000);
 
   // Get all question containers
   const questions = await page.$$('div[role="listitem"]');
