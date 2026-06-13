@@ -2,7 +2,7 @@
 
 AutoLearn is a full-stack automation tool designed to autonomously complete Google Forms, Quizizz, and Infosys Springboard assignments using Headless Browser Automation (Playwright), LLM APIs (Gemini), and WebSockets for real-time video streaming of the process.
 
-## 🏗️ New System Architecture
+##  New System Architecture
 
 The system was heavily refactored into a **queue-based asynchronous architecture** to support stability, scalability, and anti-bot evasion. 
 
@@ -60,7 +60,7 @@ The React frontend is built as a Progressive Web App (PWA).
 
 ---
 
-## 🚀 How to Run Locally
+##  How to Run Locally
 
 ### Prerequisites
 - Node.js installed
